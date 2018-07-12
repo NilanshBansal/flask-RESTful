@@ -8,14 +8,13 @@ items = []
 
 class Item(Resource):
     def get(self,name):
-        for item in items:
-            if item['name'] == name:
-                return item
-        return {'item':None}, 404
+        item = next(filter(lambda x: x['name'] == name, items),None) #returns the first matched item else None
+        return {'item':item}, 200 if item else 404
     
     def post(self,name):
+        if next(filter(lambda x: x['name'] == name, items),None):
+            return {'message':"An item with '{}' already exists.".format(name)},400 #400 for bad request as client made req with wrong name.
         data = request.get_json()
-
         item = {'name':name, 'price':data['price']}
         items.append(item)
         return item,201  #201 status code for insertion successful (Created)
