@@ -26,6 +26,23 @@ class Item(Resource):
         return item,201  #201 status code for insertion successful (Created)
         #202 for showing clients that we will create the object but not now so your request is accepted
 
+    def delete(self,name):
+        global items
+        if next(filter(lambda x: x['name'] == name, items),None) is None:
+            return {'message':"No item with name '{}' ".format(name)},400
+
+        items = list(filter(lambda x: x['name'] != name,items))
+        return {'message':'Item deleted'}
+
+    def put(self,name):
+        data = request.get_json()
+        item = next(filter(lambda x: x['name'] == name ,items),None)
+        if item is None:
+            item = {'name':name, 'price':data['price']}
+            items.append(item)
+        else:
+            item.update(data)
+        return item
 
 class ItemList(Resource):
     def get(self):
